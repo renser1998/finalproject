@@ -1,0 +1,5 @@
+    nfs_server_ip: "10.10.1.142"
+    nfs_client_network: 10.10.1.0/24
+    nfs_data_dir: /opt/my/data
+    data_dir: /opt/my/data
+    #ansible_python_interpreter: /bin/python3

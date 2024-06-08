@@ -1,0 +1,9 @@
+- name: Install packages
+  ansible.builtin.yum:
+    name:
+      - python-docker
+      - epel-release
+      - vim
+      - tcpdump
+    state: present
+    update_cache: true

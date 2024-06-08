@@ -1,0 +1,64 @@
+- name: Config App host
+  hosts: apps
+  become: true
+  tasks:
+    - name: Install common
+      ansible.builtin.import_role:
+        name: base
+
+    - name: Reload firewalld
+      ansible.builtin.service:
+        name: firewalld
+        state: reloaded
+
+    - name: Move eth1 to dmz zone
+     # ansible.builtin.shell: "firewall-cmd --zone=dmz --change-interface=eth1 --permanent"
+      ansible.builtin.shell: "firewall-cmd --zone=internal --change-interface=eth1 --permanent"
+
+    - name: Reload firewalld
+      ansible.builtin.service:
+        name: firewalld
+        state: reloaded
+
+
+    - name: Add static route
+      ansible.builtin.blockinfile:
+        path: /etc/sysconfig/network-scripts/route-eth1
+        create: true
+        block: |
+          10.10.1.0/24 via 192.168.1.101 dev eth1 
+      # ip r add 10.10.1.0/24 via 192.168.1.101 dev eth1
+
+    - name: Restart network service
+      ansible.builtin.systemd:
+        name: NetworkManager
+        state: restarted
+        
+- name: Mount data dir via nfs
+  hosts: apps
+  become: true
+  vars_files:
+    - 'vars/vars.yaml'
+  tasks:
+    - name: Install nfs packages
+      ansible.builtin.yum:
+        name:
+          - nfs-utils
+          - nfs4-acl-tools
+          - nginx
+        state: present
+
+    - name: Create project directory
+      ansible.builtin.file:
+        path: "{{ data_dir }}"
+        state: directory
+        mode: "0775"
+        owner: vagrant
+        group: vagrant
+
+    - name: Mount an NFS volume
+      ansible.posix.mount:
+        src: "{{ nfs_server_ip }}:{{ nfs_data_dir }}"
+        path: "{{ data_dir }}"
+        state: mounted
+        fstype: nfs

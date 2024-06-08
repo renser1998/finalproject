@@ -1,0 +1,2 @@
+  server {{ hostvars[app1].ansible_ssh_host }}:8000;
+  server {{ hostvars[app2].ansible_ssh_host }}:8000;
