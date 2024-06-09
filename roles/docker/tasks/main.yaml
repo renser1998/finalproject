@@ -35,9 +35,9 @@
     state: restarted
   when: not st.stat.exists
 
-#- name: Install python packages
-#  ansible.builtin.pip:
-#    name:
-#      - 'docker==4.4.4'
-#      - docker-compose
-#      - passlib
+- name: Install python packages
+  ansible.builtin.pip:
+    name:
+      - docker
+      - docker-compose
+      - passlib

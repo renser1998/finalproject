@@ -47,6 +47,13 @@ Vagrant.configure("2") do |config|
 
       boxconfig[:networks].each do |ipconf|
         box.vm.network "private_network", **ipconf
+
+        box.vm.provision "shell", inline: <<-SHELL
+        cd /etc/yum.repos.d/
+        sudo sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
+        sudo sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
+        #yum install -y wget
+    SHELL
       end
 
       # --- НЕ запускаем автоматом, т.к. плейбук отрабатывает, если поднять
